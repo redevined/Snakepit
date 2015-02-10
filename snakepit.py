@@ -2,37 +2,16 @@
 
 import sys, os, random
 from subprocess import check_output
+from animation import Vector, Animation
+
 
 def debug(*args) :
 	maxlen = max(len(str(arg)) for arg in args)
 	print "#" * (maxlen + 4)
 	for arg in args :
-		print "# {} #".format(str(arg).ljust(maxlen))
+		print "# {0} #".format(str(arg).ljust(maxlen))
 	print "#" * (maxlen + 4)
 	print
-
-
-class Vector() :
-
-	def __init__(self, x, y) :
-		self.x, self.y = x, y
-
-	def __add__(self, vec) :
-		return self.__class__(self.x + vec.x, self.y + vec.y)
-
-	def __sub__(self, vec) :
-		return self.__class__(self.x - vec.x, self.y - vec.y)
-
-	def __eq__(self, vec) :
-		return self.x == vec.x and self.y == vec.y
-
-	def __str__(self) :
-		return "{},{}".format(self.x, self.y)
-
-	def rotate(self, direction) :
-		x, y = self.x, self.y
-		self.x = -y if direction == "R" else y
-		self.y = -x if direction == "L" else x
 
 
 class Snake() :
@@ -44,7 +23,7 @@ class Snake() :
 			self.master, cmd = cmdfile.readlines()
 			self.cmd = cmd.strip().split(" ")
 		self.v = Vector(*v)
-		self.segments = [Vector(*head), Vector(*head) - self.v, Vector(*head) - self.v - self.v]
+		self.segments = [Vector(*head), Vector(*head) - self.v, Vector(*head) - self.v * 2]
 		self.head = lambda : self.segments[0]
 
 	def __contains__(self, vec) :
@@ -52,6 +31,9 @@ class Snake() :
 			if vec == segment :
 				return True
 		return False
+
+	def __len__(self) :
+		return len(self.segments)
 
 	def __str__(self) :
 		return "/".join(str(seg) for seg in self.segments)
@@ -61,14 +43,14 @@ class Snake() :
 		return move
 
 	def isEating(self) :
-		if self.head() == self.pit.food :
-			self.pit.generateFood()
-			return True
+		return self.head() == self.pit.food
 
 	def isAlive(self) :
-		crashed = self.head() in self.pit.getSnake(self.name, other = True)
+		other = self.pit.getSnake(self.name, other = True)
+		crashed = (self.head() in self.segments[1:]) or (self.head() in other)
 		escaped = self.head() not in self.pit
-		return not (crashed or escaped)
+		starved = len(other) >= 10
+		return not (crashed or escaped or starved)
 
 	def update(self) :
 		move = self.getMove().upper()
@@ -104,37 +86,19 @@ class Pit() :
 			if (snake.name == name) != other :
 				return snake
 
-	def getString(self, name = None) : # deprecated
-		snakes = [(self.getSnake(name), "x")] if name else zip(self.snakes, ("x", "o"))
-
-		def getChar(x, y) :
-			v = Vector(x, y)
-			for snake, c in snakes :
-				if v in snake :
-					if v == snake.head() :
-						return c.upper()
-					return c
-			if v == self.food :
-				return "*"
-			elif v in self :
-				return "."
-			else :
-				return "#"
-
-		return "\n".join(
-			str().join(
-				getChar(x, y) for x in range(self.size)
-			) for y in range(self.size)
-		)
-
 	def run(self) :
-		print self.getString() # debug
+		frames = Animation(self, 0.2)
+
 		while len(self.snakes) == 2 :
 			for snake in self.snakes :
 				snake.update()
-			print self.getString() # debug
+			if any(snake.isEating() for snake in self.snakes) :
+				self.generateFood()
+
+			frames.renderFrame()
 			self.snakes = [snake for snake in self.snakes if snake.isAlive()]
 
+		frames.store("records")
 		return self.snakes
 
 
@@ -142,4 +106,4 @@ if __name__ == "__main__" :
 	snakes = sys.argv[1:3]
 	game = Pit(snakes)
 	winner = game.run()
-	print "The winner is {}!".format(winner[0].name) if winner else "Draw."
+	print "The winner is {0.name}!".format(*winner) if winner else "Draw."
