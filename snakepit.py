@@ -5,25 +5,16 @@ from subprocess import check_output
 from animation import Vector, Animation
 
 
-def debug(*args) :
-	maxlen = max(len(str(arg)) for arg in args)
-	print "#" * (maxlen + 4)
-	for arg in args :
-		print "# {0} #".format(str(arg).ljust(maxlen))
-	print "#" * (maxlen + 4)
-	print
-
-
 class Snake() :
 
-	def __init__(self, inst, name, head, v) :
+	def __init__(self, inst, name, length, head, v) :
 		self.pit = inst
 		self.name = name
 		with open(os.path.join("snakes", name, "cmd.txt")) as cmdfile :
 			self.master, cmd = cmdfile.readlines()
 			self.cmd = cmd.strip().split(" ")
 		self.v = Vector(*v)
-		self.segments = [Vector(*head), Vector(*head) - self.v, Vector(*head) - self.v * 2]
+		self.segments = [Vector(*head) - self.v * i for i in range(length)]
 		self.head = lambda : self.segments[0]
 
 	def __contains__(self, vec) :
@@ -45,11 +36,11 @@ class Snake() :
 	def isEating(self) :
 		return self.head() == self.pit.food
 
-	def isAlive(self) :
+	def isAlive(self, lenlimit, cycle, cyclimit) :
 		other = self.pit.getSnake(self.name, other = True)
 		crashed = (self.head() in self.segments[1:]) or (self.head() in other)
 		escaped = self.head() not in self.pit
-		starved = len(other) >= 10
+		starved = len(other) >= lenlimit or cycle >= cyclimit
 		return not (crashed or escaped or starved)
 
 	def update(self) :
@@ -64,10 +55,13 @@ class Snake() :
 
 class Pit() :
 
-	def __init__(self, snakes) :
-		self.size = 11
-		setup = ((3, self.size // 2), (1, 0)), ((self.size - 4, self.size // 2), (-1, 0))
-		self.snakes = [Snake(self, name, *start) for name, start in zip(snakes, setup)]
+	def __init__(self, snakes, pitsize = 15, lenstart = 3, lenlimit = 8, cyclimit = 300) :
+		self.size = pitsize
+		self.limit = lenlimit
+		self.climit = cyclimit
+
+		setup = ((lenstart, self.size // 2), (1, 0)), ((self.size - 1 - lenstart, self.size // 2), (-1, 0))
+		self.snakes = [Snake(self, name, lenstart, *start) for name, start in zip(snakes, setup)]
 		self.generateFood()
 
 	def __contains__ (self, vec) :
@@ -86,20 +80,20 @@ class Pit() :
 			if (snake.name == name) != other :
 				return snake
 
-	def run(self) :
-		frames = Animation(self, 0.2)
+	def run(self, tick = 0.2) :
+		frames = Animation(self, tick)
+		frames.renderFrame()
 
-		while len(self.snakes) == 2 :
+		while all(snake.isAlive(self.limit, len(frames), self.climit) for snake in self.snakes) :
 			for snake in self.snakes :
 				snake.update()
 			if any(snake.isEating() for snake in self.snakes) :
 				self.generateFood()
-
 			frames.renderFrame()
-			self.snakes = [snake for snake in self.snakes if snake.isAlive()]
 
+		frames.renderFrame(4)
 		frames.store("records")
-		return self.snakes
+		return [snake for snake in self.snakes if snake.isAlive(self.limit, len(frames), self.climit)]
 
 
 if __name__ == "__main__" :

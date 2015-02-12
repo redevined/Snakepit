@@ -38,29 +38,36 @@ class Animation() :
         self.filename = "{0.name}_vs_{1.name}.gif".format(*self.pit.snakes)
         self.duration = t
         self.frames = []
-        self.renderFrame()
+
+    def __len__(self) :
+        return len(self.frames)
 
     def getPixel(self, x, y) :
         v = Vector(x, y)
-        if v in self.pit.snakes[0] :
-            return (240, 0, 0)
+        if v == self.pit.snakes[0].head() :
+            return (160, 0, 0)
+        elif v == self.pit.snakes[1].head() :
+            return (0, 140, 30)
+        elif v in self.pit.snakes[0] :
+            return (200, 0, 0)
         elif v in self.pit.snakes[1] :
-            return (0, 240, 0)
+            return (0, 160, 50)
         elif v == self.pit.food :
-            return (120, 120, 120)
+            return (70, 160, 255)
         elif v in self.pit :
             return (240, 240, 240)
         else :
-            return (0, 0, 0)
+            return (10, 10, 20)
 
-    def renderFrame(self) :
-        array = numpy.array(
-            [[self.getPixel(x, y) for x in range(self.pit.size)] for y in range(self.pit.size)],
-            dtype = "uint8"
-        ).repeat(20, axis = 0).repeat(20, axis = 1)
+    def renderFrame(self, n = 1) :
+        for _ in range(n) :
+            array = numpy.array(
+                [[self.getPixel(x, y) for x in range(self.pit.size)] for y in range(self.pit.size)],
+                dtype = "uint8"
+            ).repeat(20, axis = 0).repeat(20, axis = 1)
 
-        self.frames.append(Image.fromarray(array))
+            self.frames.append(Image.fromarray(array))
 
     def store(self, folder) :
         path = os.path.join(folder, self.filename)
-        gif.writeGif(path, self.frames, duration = 0.2)
+        gif.writeGif(path, self.frames, duration = self.duration)
