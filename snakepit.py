@@ -2,17 +2,33 @@
 
 import sys, os, random
 from subprocess import check_output
-from animation import Vector, Animation
+from animation import *
 
 
-class Snake() :
+class CDContext() :
 
-	def __init__(self, inst, name, length, head, v) :
-		self.pit = inst
+	def __init__(self, *paths) :
+		self.path = os.path.join(*paths)
+
+	def __enter__(self, *args) :
+		oldpath = os.getcwd()
+		os.chdir(self.path)
+		self.path = oldpath
+
+	def __exit__(self, *args) :
+		os.chdir(self.path)
+
+
+class Snake(object) :
+
+	def __init__(self, name, master, *cmd) :
 		self.name = name
-		with open(os.path.join("snakes", name, "cmd.txt")) as cmdfile :
-			self.master, cmd = cmdfile.readlines()
-			self.cmd = cmd.strip().split(" ")
+		self.master = master
+		self.cmd = cmd
+		self.score = 0
+
+	def init(self, inst, length, head, v) :
+		self.pit = inst
 		self.v = Vector(*v)
 		self.segments = [Vector(*head) - self.v * i for i in range(length)]
 		self.head = lambda : self.segments[0]
@@ -30,7 +46,13 @@ class Snake() :
 		return "/".join(str(seg) for seg in self.segments)
 
 	def getMove(self) :
-		move = check_output(self.cmd + [str(self.pit.food), str(self)]).strip()
+		try :
+			with CDContext("snakes", self.name) :
+				move = check_output(self.cmd + (str(self.pit.food), str(self))).strip()
+		except Exception as e :
+			print "Exception occured while executing {0}: {1}".format(self.name, e)
+			self.cmd = ("echo",)
+			move = self.getMove()
 		return move
 
 	def isEating(self) :
@@ -40,7 +62,7 @@ class Snake() :
 		other = self.pit.getSnake(self.name, other = True)
 		crashed = (self.head() in self.segments[1:]) or (self.head() in other)
 		escaped = self.head() not in self.pit
-		starved = len(other) >= lenlimit or cycle >= cyclimit
+		starved = len(other) >= lenlimit or cycle > cyclimit
 		return not (crashed or escaped or starved)
 
 	def update(self) :
@@ -61,7 +83,10 @@ class Pit() :
 		self.climit = cyclimit
 
 		setup = ((lenstart, self.size // 2), (1, 0)), ((self.size - 1 - lenstart, self.size // 2), (-1, 0))
-		self.snakes = [Snake(self, name, lenstart, *start) for name, start in zip(snakes, setup)]
+		for snake, vecs in zip(snakes, setup) :
+			snake.init(self, lenstart, *vecs)
+
+		self.snakes = snakes
 		self.generateFood()
 
 	def __contains__ (self, vec) :
@@ -80,8 +105,8 @@ class Pit() :
 			if (snake.name == name) != other :
 				return snake
 
-	def run(self, tick = 0.2) :
-		frames = Animation(self, tick)
+	def run(self, animate = True, tick = 0.2) :
+		frames = Animation(self, tick) if animate else Fake()
 		frames.renderFrame()
 
 		while all(snake.isAlive(self.limit, len(frames), self.climit) for snake in self.snakes) :
@@ -98,6 +123,7 @@ class Pit() :
 
 if __name__ == "__main__" :
 	snakes = sys.argv[1:3]
-	game = Pit(snakes)
-	winner = game.run()
+	with open(os.path.join("snakes", "list.txt")) as botlist :
+		snakes = [Snake(*line.strip().split(" ")) for line in botlist if line.split(" ")[0] in snakes]
+	winner = Pit(snakes).run()
 	print "The winner is {0.name}!".format(*winner) if winner else "Draw."

@@ -1,2 +1,0 @@
-Cipher
-python snakes/RightReptile/bot.py

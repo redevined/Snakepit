@@ -71,3 +71,18 @@ class Animation() :
     def store(self, folder) :
         path = os.path.join(folder, self.filename)
         gif.writeGif(path, self.frames, duration = self.duration)
+
+
+class Fake() :
+
+    def __init__(self, *args) :
+        self.counter = 0
+
+    def __len__(self) :
+        return self.counter
+
+    def renderFrame(self, *args) :
+        self.counter += 1
+
+    def store(self, *args) :
+        pass
