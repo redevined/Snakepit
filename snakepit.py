@@ -77,7 +77,7 @@ class Snake(object) :
 
 class Pit() :
 
-	def __init__(self, snakes, pitsize = 15, lenstart = 3, lenlimit = 8, cyclimit = 300) :
+	def __init__(self, snakes, pitsize = 15, lenstart = 3, lenlimit = 7, cyclimit = 200) :
 		self.size = pitsize
 		self.limit = lenlimit
 		self.climit = cyclimit
@@ -105,8 +105,8 @@ class Pit() :
 			if (snake.name == name) != other :
 				return snake
 
-	def run(self, animate = True, tick = 0.2) :
-		frames = Animation(self, tick) if animate else Fake()
+	def run(self, animate = False, tick = 0.2) :
+		frames = Animation(self, animate, tick) if animate else Fake()
 		frames.renderFrame()
 
 		while all(snake.isAlive(self.limit, len(frames), self.climit) for snake in self.snakes) :

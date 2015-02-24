@@ -33,10 +33,10 @@ class Vector() :
 
 class Animation() :
 
-    def __init__(self, inst, t) :
+    def __init__(self, inst, i, tick) :
         self.pit = inst
-        self.filename = "{0.name}_vs_{1.name}.gif".format(*self.pit.snakes)
-        self.duration = t
+        self.filename = "{1.name}_vs_{2.name}.{0}.gif".format(i, *self.pit.snakes)
+        self.duration = tick
         self.frames = []
 
     def __len__(self) :

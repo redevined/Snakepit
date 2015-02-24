@@ -1,6 +1,0 @@
-|     Name     | Master | Score |
-|--------------|--------|-------|
-| ViciousViper | Cipher | 13    |
-| SneakySnake  | Cipher | 10    |
-| LeftLizard   | Cipher | 6     |
-| RightReptile | Cipher | 3     |
