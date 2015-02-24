@@ -1,18 +1,18 @@
 Food shortage in the Snakepit
 =============================
 
-For the first time in 35 years, the snakepit is running out of food. The inhabitant snakes now have to _fight_ each other in order to survive this food shortage. Only one snake can stand at the top of the food chain!
+For the first time in 35 years, the snakepit is running out of food. The inhabitant snakes now have to __fight__ each other in order to survive this food shortage. Only one snake can stand at the top of the food chain!
 
 ---
 
 Leaderboard
 -----------
 
-__Not here yet!__
+_Not here yet!_
 
-__Last update on February, 24th___
+_Last update on February, 24th_
 
-[Link to visualizations of last matches]()
+[Link to visualizations of last matches](https://github.com/redevined/Snakepit/tree/master/records)
 
 ---
 
@@ -48,6 +48,7 @@ It should then write one of the following to stdout:
 - Anything else for a move in the same direction
 
 Example:
+
     Projects/Snakepit> python bot.py 12,2 4,8/4,9/3,9/2,9
     'R'
     Projects/Snakepit>
@@ -59,7 +60,7 @@ Rules
 
 Your bot is allowed to:
 - Output anything, because anything is a valid move
-- Read/write files in its _own directory_ which is located under ./snakes/ThisIsYourSnake
+- Read/write files in its own directory which is located under ./snakes/ThisIsYourSnake
 - Run on Ubuntu 14.04 and Windows 7 (it actually has to)
 
 Your bot must not:
@@ -95,7 +96,7 @@ Example Bots
 
 Just to give you an idea, I'll provide these two (participating) example snakes:
 
-_SneakySnake_
+__SneakySnake__
 
     #!/usr/bin/env python
 
@@ -131,7 +132,7 @@ _SneakySnake_
 
 `SneakySnake Cipher python bot.py`
 
-_ViciousViper_
+__ViciousViper__
 
     #!/usr/bin/env python
 
@@ -161,13 +162,15 @@ _ViciousViper_
 
 And their matches:
 
-[]()
+![Example match 1](https://github.com/redevined/Snakepit/blob/master/records/example1.gif)
+![Example match 2](https://github.com/redevined/Snakepit/blob/master/records/example2.gif)
+![Example match 3](https://github.com/redevined/Snakepit/blob/master/records/example3.gif)
 
 ---
 
 Control program
 ---------------
 
-You can find the control program on [github](), along with all bots and records of past matches.
+You can find the control program on [github](https://github.com/redevined/Snakepit), along with all bots and records of past matches.
 
-__Documentation follows...__
+_Documentation follows..._
