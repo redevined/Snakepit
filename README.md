@@ -39,10 +39,12 @@ The snakepit is a two-dimensional map with a width and height of 15, while the o
 Coordinates are zero-indexed, so the point where the `x` is would be `12,2`.
 
 Your bot will be called with two arguments:
+
 - The location of the food
 - The locations of your body segments, separated by `/`
 
 It should then write one of the following to stdout:
+
 - `L` for a quarter left turn as its next move
 - `R` for a quarter right turn
 - Anything else for a move in the same direction
@@ -59,22 +61,25 @@ Rules
 -----
 
 Your bot is allowed to:
+
 - Output anything, because anything is a valid move
 - Read/write files in its own directory which is located under ./snakes/ThisIsYourSnake
 - Run on Ubuntu 14.04 and Windows 7 (it actually has to)
 
 Your bot must not:
+
 - Read/write files outside its own directory
 - Use external resources such as the internet
 - Have a runtime above 10 seconds per execution
 
 You have to provide in your answer:
+
 - The source code of the bot
 - A bot/snake name
 - (Your own name)
 - A command to run your bot
 
-If you want to make my life easier, please provide a line like `CoolSnake MyOwnName python bot.py`.
+> If you want to make my life easier, please provide a line like `CoolSnake MyOwnName python bot.py`.
 
 ---
 
@@ -82,6 +87,7 @@ Scoring
 -------
 
 Your snake gets a point for winning a game against another snake. A game is won under the following circumstances:
+
 - Your opponent hits himself, you or a wall
 - You reach length 7
 
@@ -130,7 +136,7 @@ __SneakySnake__
     if __name__ == "__main__" :
         print main(*sys.argv[1:3])
 
-`SneakySnake Cipher python bot.py`
+> `SneakySnake Cipher python bot.py`
 
 __ViciousViper__
 
@@ -158,13 +164,13 @@ __ViciousViper__
     if __name__ == "__main__" :
         print main(*sys.argv[1:3])
 
-`ViciousViper Cipher python bot.py`
+> `ViciousViper Cipher python bot.py`
 
 And their matches:
 
-![Example match 1](https://github.com/redevined/Snakepit/blob/master/records/example1.gif)
-![Example match 2](https://github.com/redevined/Snakepit/blob/master/records/example2.gif)
-![Example match 3](https://github.com/redevined/Snakepit/blob/master/records/example3.gif)
+![Example match 1](https://raw.githubusercontent.com/redevined/Snakepit/master/records/example1.gif)
+![Example match 2](https://raw.githubusercontent.com/redevined/Snakepit/master/records/example2.gif)
+![Example match 3](https://raw.githubusercontent.com/redevined/Snakepit/master/records/example3.gif)
 
 ---
 
@@ -173,4 +179,23 @@ Control program
 
 You can find the control program on [github](https://github.com/redevined/Snakepit), along with all bots and records of past matches.
 
-_Documentation follows..._
+Requirements:
+
+- Python 2 + the libraries `numpy` and `pillow` (you can check if they are present via `python -c "import numpy, PIL"`, if it throws errors, the modules are missing)
+- Copying the full folder structure is required in order for the controller to work
+- Register your bot(s) in the `./snakes/list.txt` file in the style of `CoolSnake MyOwnName Command To Run My Bot`
+- Place your bot inside a directory with its name under `./snakes`
+- Neither your, nor your bot's name is allowed to contain whitespaces!
+
+Usage:
+
+> `python run.py [-h] [-n int] [-s int] [-l int] [-c int] [-g]`
+
+`python run.py` will run the tournament with all bots registered in list.txt and the standard properties. Advanced options are:
+
+- `-h` displays a help message
+- `-n int` rounds of battles for each combination of opponents
+- `-s int` determines the size of the grid (width and height)
+- `-l int` sets the required length to win
+- `-c int` sets the limit of cycles
+- `-g` or `--no-gifs` creates no gifs of the matches
